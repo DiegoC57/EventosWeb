@@ -136,6 +136,34 @@ h1 {
     color: #aaa;
 }
 
+.encabezado .col-acciones {
+    flex: 2;
+    text-align: center;
+}
+
+.tarea .col-acciones {
+    flex: 2;
+    text-align: center;
+}
+
+.btn-actualizar {
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #333;
+    background-color: white;
+    margin-right: 4px;
+}
+
+.btn-borrar {
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #cc0000;
+    background-color: white;
+    color: #cc0000;
+}
+
 @media (min-width: 768px) {
 
     body {

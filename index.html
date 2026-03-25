@@ -11,7 +11,6 @@
 <body>
 
     <h1>List to do</h1>
-
     <div class="libro">
 
         <div class="pagina pagina-izquierda">
@@ -35,23 +34,56 @@
                 <span class="col-descripcion">Descripcion</span>
                 <span class="col-check">Hecho</span>
                 <span class="col-fecha">Fecha</span>
+                <span class="col-acciones">Acciones</span>
             </div>
 
             <div id="listaTareas">
-                <div class="tarea completada">
-                    <span class="col-tarea">Lavar platos</span>
-                    <span class="col-descripcion">Se realizo sin problemas</span>
-                    <span class="col-check">
-                        <input type="checkbox" checked disabled>
-                    </span>
-                    <span class="col-fecha">2026-03-25</span>
-                </div>
             </div>
         </div>
 
     </div>
 
     <script>
+        let tareas = JSON.parse(localStorage.getItem('tareasAlmacenadas')) || [];
+
+        function guardarTareas() {
+            localStorage.setItem('tareasAlmacenadas', JSON.stringify(tareas));
+        }
+
+        function mostrarTareas() {
+            var lista = document.getElementById("listaTareas");
+            lista.innerHTML = "";
+
+            for (var i = 0; i < tareas.length; i++) {
+                var tarea = tareas[i];
+
+                var div = document.createElement("div");
+                div.className = "tarea";
+                if (tarea.completada) {
+                    div.className = "tarea completada";
+                }
+
+                var checkboxHTML = "";
+                if (tarea.completada) {
+                    checkboxHTML = '<input type="checkbox" checked disabled>';
+                } else {
+                    checkboxHTML = '<input type="checkbox" onchange="marcarRealizada(' + tarea.id + ')">';
+                }
+
+                div.innerHTML =
+                    '<span class="col-tarea">' + tarea.nombre + '</span>' +
+                    '<span class="col-descripcion">' + tarea.descripcion + '</span>' +
+                    '<span class="col-check">' + checkboxHTML + '</span>' +
+                    '<span class="col-fecha">' + tarea.fecha + '</span>' +
+                    '<span class="col-acciones">' +
+                    '<button class="btn-actualizar" onclick="actualizarTarea(' + tarea.id + ')">Editar</button>' +
+                    '<button class="btn-borrar" onclick="borrarTarea(' + tarea.id + ')">Borrar</button>' +
+                    '</span>';
+
+                lista.appendChild(div);
+            }
+        }
+
         function agregarTarea() {
             var nombre = document.getElementById("inputTarea").value;
             var descripcion = document.getElementById("inputDescripcion").value;
@@ -61,37 +93,71 @@
                 return;
             }
 
-            var lista = document.getElementById("listaTareas");
+            var nuevaTarea = {
+                id: Date.now(), // TimeStamp
+                nombre: nombre,
+                descripcion: descripcion || "Sin descripcion",
+                completada: false,
+                fecha: "---"
+            };
 
-            var nuevaTarea = document.createElement("div");
-            nuevaTarea.className = "tarea";
-
-            nuevaTarea.innerHTML =
-                '<span class="col-tarea">' + nombre + '</span>' +
-                '<span class="col-descripcion">' + (descripcion || "Sin descripcion") + '</span>' +
-                '<span class="col-check"><input type="checkbox" onchange="marcarRealizada(this)"></span>' +
-                '<span class="col-fecha">---</span>';
-
-            lista.appendChild(nuevaTarea);
+            tareas.push(nuevaTarea);
+            guardarTareas();
+            mostrarTareas();
 
             document.getElementById("inputTarea").value = "";
             document.getElementById("inputDescripcion").value = "";
         }
 
-        function marcarRealizada(checkbox) {
-            var fila = checkbox.parentElement.parentElement;
-            var fechaSpan = fila.querySelector(".col-fecha");
-
-            if (checkbox.checked) {
-                fila.classList.add("completada");
-                var hoy = new Date();
-                var year = hoy.getFullYear();
-                var month = String(hoy.getMonth() + 1).padStart(2, '0');
-                var day = String(hoy.getDate()).padStart(2, '0');
-                fechaSpan.textContent = year + "-" + month + "-" + day;
-                checkbox.disabled = true;
+        function marcarRealizada(id) {
+            for (var i = 0; i < tareas.length; i++) {
+                if (tareas[i].id === id) {
+                    tareas[i].completada = true;
+                    var hoy = new Date();
+                    var year = hoy.getFullYear();
+                    var month = String(hoy.getMonth() + 1).padStart(2, '0');
+                    var day = String(hoy.getDate()).padStart(2, '0');
+                    tareas[i].fecha = year + "-" + month + "-" + day;
+                    break;
+                }
             }
+            guardarTareas();
+            mostrarTareas();
         }
+
+        function actualizarTarea(id) {
+            for (var i = 0; i < tareas.length; i++) {
+                if (tareas[i].id === id) {
+                    var nuevoNombre = prompt("Nuevo nombre de la tarea:", tareas[i].nombre);
+                    if (nuevoNombre === null) return;
+
+                    var nuevaDescripcion = prompt("Nueva descripcion:", tareas[i].descripcion);
+                    if (nuevaDescripcion === null) return;
+
+                    tareas[i].nombre = nuevoNombre;
+                    tareas[i].descripcion = nuevaDescripcion;
+                    break;
+                }
+            }
+            guardarTareas();
+            mostrarTareas();
+        }
+
+        function borrarTarea(id) {
+            var confirmar = confirm("Estas seguro de borrar esta tarea?");
+            if (!confirmar) return;
+
+            var nuevasTareas = [];
+            for (var i = 0; i < tareas.length; i++) {
+                if (tareas[i].id !== id) {
+                    nuevasTareas.push(tareas[i]);
+                }
+            }
+            tareas = nuevasTareas;
+            guardarTareas();
+            mostrarTareas();
+        }
+        mostrarTareas();
     </script>
 
 </body>
