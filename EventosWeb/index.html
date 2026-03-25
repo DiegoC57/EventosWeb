@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Cosas por Hacer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h1>List to do</h1>
+
+    <div class="libro">
+
+        <div class="pagina pagina-izquierda">
+            <h2>Agregar Tarea</h2>
+
+            <div class="formulario">
+                <label for="inputTarea">Nombre de la tarea:</label>
+                <input type="text" id="inputTarea">
+
+                <label for="inputDescripcion">Descripcion:</label>
+                <input type="text" id="inputDescripcion">
+
+                <button onclick="agregarTarea()">Agregar Tarea</button>
+            </div>
+        </div>
+
+        <div class="pagina pagina-derecha">
+            <h2>Mis Tareas</h2>
+            <div class="encabezado">
+                <span class="col-tarea">Tarea</span>
+                <span class="col-descripcion">Descripcion</span>
+                <span class="col-check">Hecho</span>
+                <span class="col-fecha">Fecha</span>
+            </div>
+
+            <div id="listaTareas">
+                <div class="tarea completada">
+                    <span class="col-tarea">Lavar platos</span>
+                    <span class="col-descripcion">Se realizo sin problemas</span>
+                    <span class="col-check">
+                        <input type="checkbox" checked disabled>
+                    </span>
+                    <span class="col-fecha">2026-03-25</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function agregarTarea() {
+            var nombre = document.getElementById("inputTarea").value;
+            var descripcion = document.getElementById("inputDescripcion").value;
+
+            if (nombre === "") {
+                alert("Escribe el nombre de la tarea");
+                return;
+            }
+
+            var lista = document.getElementById("listaTareas");
+
+            var nuevaTarea = document.createElement("div");
+            nuevaTarea.className = "tarea";
+
+            nuevaTarea.innerHTML =
+                '<span class="col-tarea">' + nombre + '</span>' +
+                '<span class="col-descripcion">' + (descripcion || "Sin descripcion") + '</span>' +
+                '<span class="col-check"><input type="checkbox" onchange="marcarRealizada(this)"></span>' +
+                '<span class="col-fecha">---</span>';
+
+            lista.appendChild(nuevaTarea);
+
+            document.getElementById("inputTarea").value = "";
+            document.getElementById("inputDescripcion").value = "";
+        }
+
+        function marcarRealizada(checkbox) {
+            var fila = checkbox.parentElement.parentElement;
+            var fechaSpan = fila.querySelector(".col-fecha");
+
+            if (checkbox.checked) {
+                fila.classList.add("completada");
+                var hoy = new Date();
+                var year = hoy.getFullYear();
+                var month = String(hoy.getMonth() + 1).padStart(2, '0');
+                var day = String(hoy.getDate()).padStart(2, '0');
+                fechaSpan.textContent = year + "-" + month + "-" + day;
+                checkbox.disabled = true;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
